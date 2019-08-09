@@ -1,6 +1,13 @@
 # Blue Jays Home Games
 > A Data Science Project deliverable for the SCS3250-027 - Introduction to Data Science course @ the University of Toronto (Summer 2019)
 
+### Table of Contents
+1. [Hypothesis](#hypothesis)
+2. [Datasets](#datasets)
+3. [Methodology](#methodology)
+4. [Findings](#findings)
+5. [Jupyter Notebooks](#jupyter-notebooks)
+
 ### Hypothesis
 Does higher attendance at Blue Jays home games in Toronto translate to increased incidences of killed or seriously injured accidents in the immediate vicinity of the Rogers Centre? It turns out the answer isn't so straightforward. Here I present a basic Data Science analysis of this question using `numpy` and `pandas` libraries along with a few publicly available data sets.
 
@@ -25,3 +32,7 @@ Using both datasets, I filtered the KSI data using based on two criteria: a) spe
 #### 2 hours and 3 kilometres
 ![2 hours x 3 km](2h3km.png)
 - Reducing the time window after games shows the opposite trend from the first graph and correctly predicts our assumptions about why the second graph trend behaves the way it does. 
+
+### Jupyter Notebooks
+1) Part 1 - [Prepare Blue Jays Data Set](https://github.com/kcarmonamurphy/blue-jays-home-games/blob/master/Part%201%20-%20Prepare%20Blue%20Jays%20Data%20Set)
+2) Part 2 - [Analyse KSI & Draw Conclusions](https://github.com/kcarmonamurphy/blue-jays-home-games/blob/master/Part%202%20-%20Analyse%20KSI%20%26%20Draw%20Conclusions)

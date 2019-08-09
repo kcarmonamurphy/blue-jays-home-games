@@ -11,3 +11,17 @@ Does higher attendance at Blue Jays home games in Toronto translate to increased
 
 ### Methodology
 Using both datasets, I filtered the KSI data using based on two criteria: a) specific time windows after Toronto Blue Jays home games at the Rogers Centre, b) distance from the Rogers Centre. The resulting filtered datasets were then be grouped by attendance quintiles. Dataframes for different values of criteria a) and b) were then created and plotted to attempt to prove or disprove the hypothesis.
+
+### Findings
+
+#### 5 hours and 5 kilometres
+![5 hours x 5 km](5h5km.png)
+- Here we see that the data correlates generally with the stated hyptothesis. As the attendance increases, the number of accidents increases.
+
+#### 5 hours and 3 kilometres
+![5 hours x 3 km](5h3km.png)
+- Reducing the radius from the Rogers Centre, an interesting trend emerges only for games with high attendance. It seems that the number of accidents drops. This is likely due to so much traffic flooding the nearby streets and causing so much congestion that the roads become safer.
+
+#### 2 hours and 3 kilometres
+![2 hours x 3 km](2h3km.png)
+- Reducing the time window after games shows the opposite trend from the first graph and correctly predicts our assumptions about why the second graph trend behaves the way it does. 

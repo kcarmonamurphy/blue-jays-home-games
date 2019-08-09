@@ -1,0 +1,255 @@
+{
+ "cells": [
+  {
+   "cell_type": "markdown",
+   "metadata": {
+    "colab_type": "text",
+    "id": "hIvP_opiZKuY"
+   },
+   "source": [
+    "# Question 2 - Part 1: Jays Schedule\n",
+    "#### Obtain, Clean & Prepare a Toronto Blue Jays home games dataset\n",
+    "> This notebook sources Toronto Blue Jays schedule information from https://sports-reference.com. It aggregates schedule information from multiple years, drops irrelevant columns, and engineers new start and end time attributes.\n",
+    "\n",
+    "> The resulting dataset is stored as a CSV and is available at ...\n"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 1,
+   "metadata": {
+    "colab": {},
+    "colab_type": "code",
+    "id": "axGfQZFUHM4y"
+   },
+   "outputs": [],
+   "source": [
+    "def get_game_start_time(date, day_night, year):\n",
+    "  '''\n",
+    "  This function takes as parameters three variables:\n",
+    "  date (str): eg: 'Wednesday, Apr 12'\n",
+    "  day_night (str): 'D' or 'N'\n",
+    "  year (str): eg: '2010'\n",
+    "  \n",
+    "  It returns the start time of a Blue Jays game on that particular day as a Python datetime object\n",
+    "  '''\n",
+    "  \n",
+    "  # gather the start times of games by looking at jays schedule: https://www.mlb.com/bluejays/schedule\n",
+    "  # applies to most home games\n",
+    "  SATURDAY_START_DAYGAME_TIME = '15:07:00'\n",
+    "  SATURDAY_START_NIGHTGAME_TIME = '19:07:00'\n",
+    "  SUNDAY_START_DAYGAME_TIME = '13:07:00'\n",
+    "  SUNDAY_START_NIGHTGAME_TIME = '19:07:00'\n",
+    "  WEEKDAY_START_DAYGAME_TIME = '12:37:00'\n",
+    "  WEEKDAY_START_NIGHTGAME_TIME = '19:07:00'\n",
+    "  \n",
+    "  # format day of week to one of ['SATURDAY', 'SUNDAY', 'WEEKDAY']\n",
+    "  day_of_week = date.split(',')[0]\n",
+    "  if day_of_week in ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']:\n",
+    "    day_of_week = 'WEEKDAY'\n",
+    "  elif day_of_week == 'Saturday':\n",
+    "    day_of_week = 'SATURDAY'\n",
+    "  elif day_of_week == 'Sunday':\n",
+    "    day_of_week = 'SUNDAY'\n",
+    "  else:\n",
+    "    raise NameError('Incorrect Day of Week Detected')\n",
+    "  \n",
+    "  # either a DAYGAME or NIGHTGAME\n",
+    "  game_type = 'DAYGAME'\n",
+    "  if day_night == 'N':\n",
+    "    game_type = 'NIGHTGAME'\n",
+    "    \n",
+    "  # format the start time as string\n",
+    "  start_time = eval('{}_START_{}_TIME'.format(day_of_week, game_type))\n",
+    "  \n",
+    "  # get month and day from string (eg. Apr 21)\n",
+    "  month_and_day = re.findall('[a-zA-Z]{3} \\d{1,2}', date)[0]\n",
+    "  \n",
+    "  # produce the time\n",
+    "  datetime_string = '{} {} {}'.format(month_and_day, year, start_time)\n",
+    " \n",
+    "  # parse it into datetime format\n",
+    "  datetime = parser.parse(datetime_string)\n",
+    "  \n",
+    "  return datetime"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 2,
+   "metadata": {
+    "colab": {},
+    "colab_type": "code",
+    "id": "lWLT8bDrXBLr"
+   },
+   "outputs": [],
+   "source": [
+    "def get_game_finish_time(start_datetime, duration):\n",
+    "  '''\n",
+    "  This function takes as parameters two arguments:\n",
+    "  start_datetime (datetime): datetime object representing start of game\n",
+    "  duration (str): eg: '03:30' representing length in hours and minutes of game\n",
+    "  \n",
+    "  returns Python datetime of start_time shifted into future by duration amount\n",
+    "  '''\n",
+    "  \n",
+    "  hours = int(duration.split(':')[0])\n",
+    "  minutes = int(duration.split(':')[1])\n",
+    "  \n",
+    "  delta_duration = relativedelta.relativedelta(hours=+hours, minutes=+minutes)\n",
+    "  \n",
+    "  end_time = start_datetime + delta_duration\n",
+    "  \n",
+    "  return end_time"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 3,
+   "metadata": {
+    "colab": {},
+    "colab_type": "code",
+    "id": "8AxK4Vu0W_Zw"
+   },
+   "outputs": [],
+   "source": [
+    "def read_html(path, year):\n",
+    "  '''\n",
+    "  This function takes two parameters:\n",
+    "  path (str): Path to webpage containing html table of jays schedule\n",
+    "  year (str): eg: '2010'\n",
+    "  \n",
+    "  returns DataFrame of that particular year's Jays Schedule\n",
+    "  '''\n",
+    "  \n",
+    "  dataframe = pd.read_html(path)[0]\n",
+    "  \n",
+    "  # rename the columns\n",
+    "  dataframe.columns = JAYS_SCHEDULE_COLUMNS\n",
+    "  \n",
+    "  # drop all the columns that we don't need\n",
+    "  dataframe.drop(['game_number', 'boxscore_link', 'win_loss', 'innings', 'win_loss', 'rank', 'games_score', 'games_behind', 'win', 'loss', 'save', 'streak', 'originally_scheduled' ], axis=1, inplace=True)\n",
+    "  \n",
+    "  # get all the home games, then drop the home_game column\n",
+    "  dataframe = dataframe[dataframe.home_game != '@'].drop('home_game', axis=1)\n",
+    "  \n",
+    "  # get rid of month separator row inherited from html table\n",
+    "  dataframe = dataframe[dataframe.attendance != 'Attendance']\n",
+    "    \n",
+    "  # set the start time of the game\n",
+    "  dataframe['game_start'] = dataframe.apply(lambda x: get_game_start_time(x.date, x.day_night, year), axis=1)\n",
+    "  \n",
+    "  # drop the date and day_night columns; they're no longer needed\n",
+    "  dataframe.drop(['date', 'day_night'], axis=1, inplace=True)\n",
+    "  \n",
+    "  # convert game duration into timedelta format\n",
+    "  dataframe['game_finish'] = dataframe.apply(lambda x: get_game_finish_time(x.game_start, x.game_duration), axis=1)\n",
+    "\n",
+    "  return dataframe"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 4,
+   "metadata": {
+    "colab": {},
+    "colab_type": "code",
+    "id": "CuBiFbv46yf-"
+   },
+   "outputs": [],
+   "source": [
+    "# Question 2\n",
+    "# analyzing the impact of major sporting events of traffic accidents\n",
+    "\n",
+    "import pandas as pd\n",
+    "import numpy as np\n",
+    "\n",
+    "from string import Template\n",
+    "from dateutil import parser\n",
+    "from dateutil import relativedelta\n",
+    "import re\n",
+    "\n",
+    "JAYS_SCHEDULE_PATH_TEMPLATE = Template('https://widgets.sports-reference.com/wg.fcgi?css=1&site=br&url=%2Fteams%2FTOR%2F$date-schedule-scores.shtml&div=div_team_schedule')\n",
+    "JAYS_SCHEDULE_COLUMNS = ['game_number',\t'date', 'boxscore_link', 'team', 'home_game','opponent', 'win_loss', 'home_score','away_score', 'innings','games_score','rank','games_behind','win','loss','save','game_duration','day_night','attendance','streak','originally_scheduled']\n",
+    "\n",
+    "# we are concerned only with data from 2010 to 2017\n",
+    "START_YEAR = 2008\n",
+    "END_YEAR = 2018\n",
+    "\n",
+    "# specify download filename\n",
+    "FILENAME = 'toronto_blue_jays_home_games_scheduled_start_and_finish_times_{}_to_{}.csv'.format(START_YEAR, END_YEAR)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 5,
+   "metadata": {
+    "colab": {},
+    "colab_type": "code",
+    "id": "RjmeoUi0_0Q4"
+   },
+   "outputs": [],
+   "source": [
+    "# create a numpy list of years\n",
+    "year_range = np.arange(START_YEAR, END_YEAR+1)\n",
+    "\n",
+    "# get the paths to all of the yearly schedules of the jays games\n",
+    "jays_schedule_paths = [JAYS_SCHEDULE_PATH_TEMPLATE.substitute({'date' : year}) for year in year_range]\n",
+    "\n",
+    "# create a dict of data frames according to year\n",
+    "# e.g.: {'2010': DataFrame for 2010, '2011': DataFrame for 2011, ...}\n",
+    "baseball_data = {index+START_YEAR : read_html(path, index+START_YEAR) for (index, path) in enumerate(jays_schedule_paths)}\n",
+    "\n",
+    "dataframe = pd.DataFrame()\n",
+    "for year in list(year_range):\n",
+    "  year_df = baseball_data[year]\n",
+    "  dataframe = dataframe.append(year_df)\n",
+    "  \n",
+    "# reset the indexes and drop extra index column\n",
+    "dataframe.reset_index(inplace=True)\n",
+    "dataframe.drop('index', axis=1, inplace=True)\n",
+    "\n",
+    "# save the file locally\n",
+    "dataframe.to_csv(FILENAME, index=False)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": 0,
+   "metadata": {
+    "colab": {},
+    "colab_type": "code",
+    "id": "SB2dxr-kMrdP"
+   },
+   "outputs": [],
+   "source": []
+  }
+ ],
+ "metadata": {
+  "colab": {
+   "collapsed_sections": [],
+   "name": "Question 2, Part 1: Prepare Blue Jays Dataset",
+   "provenance": [],
+   "version": "0.3.2"
+  },
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 1
+}

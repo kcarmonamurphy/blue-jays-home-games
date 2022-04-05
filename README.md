@@ -34,5 +34,5 @@ Using both datasets, I filtered the KSI data using based on two criteria: a) spe
 - Reducing the time window after games shows the opposite trend from the first graph and correctly predicts our assumptions about why the second graph trend behaves the way it does. 
 
 ### Jupyter Notebooks
-1) Part 1 - [Prepare Blue Jays Data Set](https://github.com/kcarmonamurphy/blue-jays-home-games/blob/master/Part%201%20-%20Prepare%20Blue%20Jays%20Data%20Set.ipynb)
-2) Part 2 - [Analyse KSI & Draw Conclusions](https://github.com/kcarmonamurphy/blue-jays-home-games/blob/master/Part%202%20-%20Analyse%20KSI%20%26%20Draw%20Conclusions.ipynb)
+1) Part 1 - [Analyse KSI & Draw Conclusions](https://github.com/kcarmonamurphy/blue-jays-home-games/blob/master/Part%201%20-%20Prepare%20Blue%20Jays%20Data%20Set.ipynb)
+2) Part 2 - [Prepare Blue Jays Data Set](https://github.com/kcarmonamurphy/blue-jays-home-games/blob/master/Part%202%20-%20Analyse%20KSI%20%26%20Draw%20Conclusions.ipynb)
